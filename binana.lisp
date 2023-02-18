@@ -26,7 +26,7 @@
 	((= value MH_DYLIB_STUB) "Shared library stub for static linking")
 	((= value MH_DSYM) "Companinon file with only debug sections")
 	((= value MH_KEXT_BUNDLE) "x86-64 Kexts")
-	(t "Other")))
+	(t "Unknown")))
 
 (defun read-32-bit-word (input start)
   (logior (ash (aref input (+ start 3)) 24)
