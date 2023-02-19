@@ -166,11 +166,11 @@
   (multiple-value-bind (ncmds sizeofcmds) (read-load-command-vars stream)
     (let ((bytes (read-block-from-stream stream 32 sizeofcmds))
 	  (cmdstart 0))
-      (loop repeat ncmds do
+      (loop repeat ncmds collect
 	(let ((cmd (read-32-bit-word bytes cmdstart))
 	      (cmdsize (read-32-bit-word bytes (+ cmdstart 4))))
 	  (setf cmdstart (+ cmdstart cmdsize))
-	  (format t "~d ~d~%" (map-to-load-command cmd) cmdsize))))))
+	  (map-to-load-command cmd))))))
 
 (defun print-mach-header (filename)
   (with-open-file (in filename :element-type '(unsigned-byte 8))
