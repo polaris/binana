@@ -154,7 +154,7 @@
 	 (ncmds (read-32-bit-word bytes 16))
 	 (sizeofcmds (read-32-bit-word bytes 20))
 	 (flags (read-32-bit-word bytes 24)))
-      (values magic cputype cpusubtype filetype ncmds sizeofcmds flags)))
+    (values magic cputype cpusubtype filetype ncmds sizeofcmds flags)))
 
 (defun read-load-command-vars (stream)
   (let* ((bytes (read-block-from-stream stream 16 8))
