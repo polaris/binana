@@ -139,14 +139,14 @@
           (ash (aref input (+ start 1)) 8)
           (aref input start)))
 
-(defun read-block-from-stream (stream start size)
+(defun read-block (stream start size)
   (let* ((bytes (make-array size :initial-element 0)))
     (file-position stream start)
     (read-sequence bytes stream :start 0 :end size)
     bytes))
 
 (defun read-mach-header (stream)
-  (let* ((bytes (read-block-from-stream stream 0 32))
+  (let* ((bytes (read-block stream 0 32))
 	 (magic (read-32-bit-word bytes 0))
          (cputype (read-32-bit-word bytes 4))
          (cpusubtype (read-32-bit-word bytes 8))
@@ -157,14 +157,14 @@
     (values magic cputype cpusubtype filetype ncmds sizeofcmds flags)))
 
 (defun read-load-command-vars (stream)
-  (let* ((bytes (read-block-from-stream stream 16 8))
+  (let* ((bytes (read-block stream 16 8))
 	 (ncmds (read-32-bit-word bytes 0))
 	 (sizeofcmds (read-32-bit-word bytes 4)))
     (values ncmds sizeofcmds)))
 
 (defun read-load-commands (stream)
   (multiple-value-bind (ncmds sizeofcmds) (read-load-command-vars stream)
-    (let ((bytes (read-block-from-stream stream 32 sizeofcmds))
+    (let ((bytes (read-block stream 32 sizeofcmds))
 	  (cmdstart 0))
       (loop repeat ncmds collect
 	(let ((cmd (read-32-bit-word bytes cmdstart))
