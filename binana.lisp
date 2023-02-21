@@ -89,10 +89,10 @@
 (defun read-string (input start size)
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
-(defun read-load-command-segment (input)
+(defun read-segment-command (input)
   "SEGMENT")
 
-(defstruct segment-load-command-64
+(defstruct segment-command-64
   (cmd "" :type string)
   (segname "" :type string)
   (vmaddr 0 :type integer)
@@ -104,8 +104,8 @@
   (nsects 0 :type integer)
   (flags 0 :type integer))
 
-(defun read-segment-load-command-64 (input)
-  (make-segment-load-command-64 :cmd "SEGMENT_64"
+(defun read-segment-command-64 (input)
+  (make-segment-command-64 :cmd "SEGMENT_64"
 				:segname (read-string input 8 16)
 				:vmaddr (read-32-bit-word input 16)
 				:vmsize (read-32-bit-word input 20)
@@ -117,7 +117,7 @@
 				:flags (read-32-bit-word input 44)))
 
 (defun map-to-load-command (cmd input)
-  (cond ((= cmd LC_SEGMENT) (read-load-command-segment input))
+  (cond ((= cmd LC_SEGMENT) (read-segment-command input))
         ((= cmd LC_SYMTAB) "SYMTAB")
         ((= cmd LC_SYMSEG) "SYMSEG")
         ((= cmd LC_THREAD) "THREAD")
@@ -141,7 +141,7 @@
         ((= cmd LC_TWOLEVEL_HINTS) "TWOLEVEL_HINTS")
         ((= cmd LC_PREBIND_CKSUM) "PREBIND_CKSUM")
         ((= cmd LC_LOAD_WEAK_DYLIB) "LOAD_WEAK_DYLIB")
-        ((= cmd LC_SEGMENT_64) (read-segment-load-command-64 input))
+        ((= cmd LC_SEGMENT_64) (read-segment-command-64 input))
         ((= cmd LC_ROUTINES_64) "ROUTINES_64")
         ((= cmd LC_UUID) "UUID")
         ((= cmd LC_RPATH) "RPATH")
