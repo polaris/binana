@@ -116,6 +116,28 @@
 			   :nsects (read-32-bit-word input 40)
 			   :flags (read-32-bit-word input 44)))
 
+(defstruct dylib-info
+  (name "" :type string)
+  (timestamp 0 :type integer)
+  (current-version 0 :type integer)
+  (compatibility-version 0 :type integer))
+
+(defstruct dylib-command
+  (cmd "" :type string)
+  dylib)
+
+(defun read-dylib-command (input)
+  (let ((cmdsize (read-32-bit-word input 4))
+	(offset (read-32-bit-word input 8))
+	(timestamp (read-32-bit-word input 12))
+	(current-version (read-32-bit-word input 16))
+	(compatibility-version (read-32-bit-word input 20)))
+    (make-dylib-command :cmd "LOAD_DYLIB"
+			:dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
+						:timestamp timestamp
+						:current-version current-version
+						:compatibility-version compatibility-version))))
+
 (defun map-to-load-command (cmd input)
   (cond ((= cmd LC_SEGMENT) (read-segment-command input))
         ((= cmd LC_SYMTAB) "SYMTAB")
@@ -128,7 +150,7 @@
         ((= cmd LC_FVMFILE) "FVMFILE")
         ((= cmd LC_PREPAGE) "PREPAGE")
         ((= cmd LC_DYSYMTAB) "DYSYMTAB")
-        ((= cmd LC_LOAD_DYLIB) "LOAD_DYLIB")
+        ((= cmd LC_LOAD_DYLIB) (read-dylib-command input))
         ((= cmd LC_ID_DYLIB) "ID_DYLIB")
         ((= cmd LC_LOAD_DYLINKER) "LOAD_DYLINKER")
         ((= cmd LC_ID_DYLINKER) "ID_DYLINKER")
