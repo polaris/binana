@@ -119,8 +119,8 @@
 (defstruct dylib-info
   (name "" :type string)
   (timestamp 0 :type integer)
-  (current-version 0 :type integer)
-  (compatibility-version 0 :type integer))
+  (current-version "" :type string)
+  (compatibility-version "" :type string))
 
 (defstruct dylib-command
   (cmd "" :type string)
@@ -130,8 +130,8 @@
   (let ((cmdsize (read-32-bit-word input 4))
 	(offset (read-32-bit-word input 8))
 	(timestamp (read-32-bit-word input 12))
-	(current-version (read-32-bit-word input 16))
-	(compatibility-version (read-32-bit-word input 20)))
+	(current-version (read-version input 16))
+	(compatibility-version (read-version input 20)))
     (make-dylib-command :cmd "LOAD_DYLIB"
 			:dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
 						:timestamp timestamp
@@ -190,6 +190,19 @@
           (ash (aref input (+ start 2)) 16)
           (ash (aref input (+ start 1)) 8)
           (aref input start)))
+
+(defun read-version (input start)
+  (let ((patch (aref input start))
+	(minor (aref input (+ start 1)))
+	(major (logior (ash (aref input (+ start 3)) 8)
+		       (aref input (+ start 2)))))
+    (let ((output-string (make-array 0
+				     :element-type 'character
+				     :adjustable T
+				     :fill-pointer 0)))
+      (declare (type string output-string))
+      (format output-string "~d.~d.~d" major minor patch)
+      output-string)))
 
 (defun read-block (stream start size)
   (let* ((bytes (make-array size :initial-element 0)))
