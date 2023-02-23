@@ -232,11 +232,11 @@
     (let ((bytes (read-block stream 32 sizeofcmds))
 	  (cmdstart 0))
       (loop repeat ncmds collect
-	(let* ((cmd (read-32-bit-word bytes cmdstart))
-	       (cmdsize (read-32-bit-word bytes (+ cmdstart 4)))
-	       (s (subseq bytes cmdstart (+ cmdstart cmdsize))))
-	  (setf cmdstart (+ cmdstart cmdsize))
-	  (list (map-to-load-command cmd s)))))))
+			 (let* ((cmd (read-32-bit-word bytes cmdstart))
+				(cmdsize (read-32-bit-word bytes (+ cmdstart 4)))
+				(s (subseq bytes cmdstart (+ cmdstart cmdsize))))
+			   (setf cmdstart (+ cmdstart cmdsize))
+			   (list (map-to-load-command cmd s)))))))
 
 (defun print-mach-header (filename)
   (with-open-file (in filename :element-type '(unsigned-byte 8))
