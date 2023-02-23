@@ -89,6 +89,33 @@
 (defun read-string (input start size)
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
+(defstruct dyld-info-only-command
+  (cmd "" :type string)
+  (rebase-off 0 :type integer)
+  (rebase-size 0 :type integer)
+  (bind-off 0 :type integer)
+  (bind-size 0 :type integer)
+  (weak-bind-off 0 :type integer)
+  (weak-bind-size 0 :type integer)
+  (lazy-bind-off 0 :type integer)
+  (lazy-bind-size 0 :type integer)
+  (export-off 0 :type integer)
+  (export-size 0 :type integer))
+
+(defun read-dyld-info-only-command (input)
+  (make-dyld-info-only-command :cmd "DYLD_INFO_ONLY"
+			       :rebase-off (read-32-bit-word input 8)
+			       :rebase-size (read-32-bit-word input 12)
+			       :bind-off (read-32-bit-word input 16)
+			       :bind-size (read-32-bit-word input 20)
+			       :weak-bind-off (read-32-bit-word input 24)
+			       :weak-bind-size (read-32-bit-word input 28)
+			       :lazy-bind-off (read-32-bit-word input 32)
+			       :lazy-bind-size (read-32-bit-word input 36)
+			       :export-off (read-32-bit-word input 40)
+			       :export-size (read-32-bit-word input 44)))
+
+
 (defstruct dyld-info-command
   (cmd "" :type string)
   (rebase-off 0 :type integer)
@@ -220,7 +247,7 @@
         ((= cmd LC_LAZY_LOAD_DYLIB) "LAZY_LOAD_DYLIB")
         ((= cmd LC_ENCRYPTION_INFO) "ENCRYPTION_INFO")
         ((= cmd LC_DYLD_INFO) (read-dyld-info-command input))
-        ((= cmd LC_DYLD_INFO_ONLY) "DYLD_INFO_ONLY")
+        ((= cmd LC_DYLD_INFO_ONLY) (read-dyld-info-only-command input))
         ((= cmd LC_LOAD_UPWARD_DYLIB) "LOAD_UPWARD_DYLIB")
         ((= cmd LC_VERSION_MIN_MACOSX) "VERSION_MIN_MACOSX")
         ((= cmd LC_VERSION_MIN_IPHONEOS) "VERSION_MIN_IPHONEOS")
