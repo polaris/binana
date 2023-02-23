@@ -89,6 +89,20 @@
 (defun read-string (input start size)
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
+(defstruct symtab-command
+  (cmd "" :type string)
+  (symoff 0 :type integer)
+  (nsyms 0 :type integer)
+  (stroff 0 :type integer)
+  (strsize 0 :type integer))
+
+(defun read-symtab-command (input)
+  (make-symtab-command :cmd "SYMTAB"
+		       :symoff (read-32-bit-word input 8)
+		       :nsyms (read-32-bit-word input 12)
+		       :stroff (read-32-bit-word input 16)
+		       :strsize (read-32-bit-word input 20)))
+
 (defstruct dyld-info-only-command
   (cmd "" :type string)
   (rebase-off 0 :type integer)
@@ -214,7 +228,7 @@
 
 (defun map-to-load-command (cmd input)
   (cond ((= cmd LC_SEGMENT) (read-segment-command input))
-        ((= cmd LC_SYMTAB) "SYMTAB")
+        ((= cmd LC_SYMTAB) (read-symtab-command input))
         ((= cmd LC_SYMSEG) "SYMSEG")
         ((= cmd LC_THREAD) "THREAD")
         ((= cmd LC_UNIXTHREAD) "UNIXTHREAD")
