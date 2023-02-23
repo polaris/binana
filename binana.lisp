@@ -89,8 +89,29 @@
 (defun read-string (input start size)
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
+(defstruct segment-command
+  (cmd "" :type string)
+  (segname "" :type string)
+  (vmaddr 0 :type integer)
+  (vmsize 0 :type integer)
+  (fileoff 0 :type integer)
+  (filesize 0 :type integer)
+  (maxprot 0 :type integer)
+  (initprot 0 :type integer)
+  (nsects 0 :type integer)
+  (flags 0 :type integer))
+
 (defun read-segment-command (input)
-  "SEGMENT")
+  (make-segment-command :cmd "SEGMENT"
+			:segname (read-string input 8 16)
+			:vmaddr (read-32-bit-word input 16)
+			:vmsize (read-32-bit-word input 20)
+			:fileoff (read-32-bit-word input 24)
+			:filesize (read-32-bit-word input 28)
+			:maxprot (read-32-bit-word input 32)
+			:initprot (read-32-bit-word input 36)
+			:nsects (read-32-bit-word input 40)
+			:flags (read-32-bit-word input 44)))
 
 (defstruct segment-command-64
   (cmd "" :type string)
