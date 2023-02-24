@@ -90,21 +90,20 @@
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
 (defstruct symtab-command
-  (cmd "" :type string)
+  (cmd "SYMTAB" :type string)
   (symoff 0 :type integer)
   (nsyms 0 :type integer)
   (stroff 0 :type integer)
   (strsize 0 :type integer))
 
 (defun read-symtab-command (input)
-  (make-symtab-command :cmd "SYMTAB"
-		       :symoff (read-32-bit-word input 8)
+  (make-symtab-command :symoff (read-32-bit-word input 8)
 		       :nsyms (read-32-bit-word input 12)
 		       :stroff (read-32-bit-word input 16)
 		       :strsize (read-32-bit-word input 20)))
 
 (defstruct dyld-info-only-command
-  (cmd "" :type string)
+  (cmd "DYLD_INFO_ONLY" :type string)
   (rebase-off 0 :type integer)
   (rebase-size 0 :type integer)
   (bind-off 0 :type integer)
@@ -117,8 +116,7 @@
   (export-size 0 :type integer))
 
 (defun read-dyld-info-only-command (input)
-  (make-dyld-info-only-command :cmd "DYLD_INFO_ONLY"
-			       :rebase-off (read-32-bit-word input 8)
+  (make-dyld-info-only-command :rebase-off (read-32-bit-word input 8)
 			       :rebase-size (read-32-bit-word input 12)
 			       :bind-off (read-32-bit-word input 16)
 			       :bind-size (read-32-bit-word input 20)
@@ -131,7 +129,7 @@
 
 
 (defstruct dyld-info-command
-  (cmd "" :type string)
+  (cmd "DYLD_INFO" :type string)
   (rebase-off 0 :type integer)
   (rebase-size 0 :type integer)
   (bind-off 0 :type integer)
@@ -144,8 +142,7 @@
   (export-size 0 :type integer))
 
 (defun read-dyld-info-command (input)
-  (make-dyld-info-command :cmd "DYLD_INFO"
-			  :rebase-off (read-32-bit-word input 8)
+  (make-dyld-info-command :rebase-off (read-32-bit-word input 8)
 			  :rebase-size (read-32-bit-word input 12)
 			  :bind-off (read-32-bit-word input 16)
 			  :bind-size (read-32-bit-word input 20)
@@ -157,7 +154,7 @@
 			  :export-size (read-32-bit-word input 44)))
 
 (defstruct segment-command
-  (cmd "" :type string)
+  (cmd "SEGMENT" :type string)
   (segname "" :type string)
   (vmaddr 0 :type integer)
   (vmsize 0 :type integer)
@@ -169,8 +166,7 @@
   (flags 0 :type integer))
 
 (defun read-segment-command (input)
-  (make-segment-command :cmd "SEGMENT"
-			:segname (read-string input 8 16)
+  (make-segment-command :segname (read-string input 8 16)
 			:vmaddr (read-32-bit-word input 16)
 			:vmsize (read-32-bit-word input 20)
 			:fileoff (read-32-bit-word input 24)
@@ -181,7 +177,7 @@
 			:flags (read-32-bit-word input 44)))
 
 (defstruct segment-command-64
-  (cmd "" :type string)
+  (cmd "SEGMENT_64" :type string)
   (segname "" :type string)
   (vmaddr 0 :type integer)
   (vmsize 0 :type integer)
@@ -193,8 +189,7 @@
   (flags 0 :type integer))
 
 (defun read-segment-command-64 (input)
-  (make-segment-command-64 :cmd "SEGMENT_64"
-			   :segname (read-string input 8 16)
+  (make-segment-command-64 :segname (read-string input 8 16)
 			   :vmaddr (read-32-bit-word input 16)
 			   :vmsize (read-32-bit-word input 20)
 			   :fileoff (read-32-bit-word input 24)
@@ -211,7 +206,7 @@
   (compatibility-version "" :type string))
 
 (defstruct dylib-command
-  (cmd "" :type string)
+  (cmd "LOAD_DYLIB" :type string)
   dylib)
 
 (defun read-dylib-command (input)
@@ -220,14 +215,13 @@
 	(timestamp (read-32-bit-word input 12))
 	(current-version (read-version input 16))
 	(compatibility-version (read-version input 20)))
-    (make-dylib-command :cmd "LOAD_DYLIB"
-			:dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
+    (make-dylib-command :dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
 						:timestamp timestamp
 						:current-version current-version
 						:compatibility-version compatibility-version))))
 
 (defstruct dysymtab-command
-  (cmd "" :type string)
+  (cmd "DYSYMTAB" :type string)
   (ilocalsym 0 :type integer)
   (nlocalsym 0 :type integer)
   (iextdefsym 0 :type integer)
@@ -248,8 +242,7 @@
   (nlocrel 0 :type integer))
 
 (defun read-dysymtab-command (input)
-  (make-dysymtab-command :cmd "DYSYMTAB"
-			 :ilocalsym (read-32-bit-word input 8)
+  (make-dysymtab-command :ilocalsym (read-32-bit-word input 8)
 			 :nlocalsym (read-32-bit-word input 12)
 			 :iextdefsym (read-32-bit-word input 16)
 			 :nextdefsym (read-32-bit-word input 20)
