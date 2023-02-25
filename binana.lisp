@@ -220,6 +220,15 @@
 						:current-version current-version
 						:compatibility-version compatibility-version))))
 
+(defstruct load-dylinker-command
+  (cmd "LOAD_DYLINKER" :type string)
+  (name "" :type string))
+
+(defun read-load-dylinker-command (input)
+  (let ((cmdsize (read-32-bit-word input 4))
+	(offset (read-32-bit-word input 8)))
+    (make-load-dylinker-command :name (read-string input offset (- cmdsize offset)))))
+
 (defstruct dysymtab-command
   (cmd "DYSYMTAB" :type string)
   (ilocalsym 0 :type integer)
@@ -275,7 +284,7 @@
         ((= cmd LC_DYSYMTAB) (read-dysymtab-command input))
         ((= cmd LC_LOAD_DYLIB) (read-dylib-command input))
         ((= cmd LC_ID_DYLIB) "ID_DYLIB")
-        ((= cmd LC_LOAD_DYLINKER) "LOAD_DYLINKER")
+        ((= cmd LC_LOAD_DYLINKER) (read-load-dylinker-command input))
         ((= cmd LC_ID_DYLINKER) "ID_DYLINKER")
         ((= cmd LC_PREBOUND_DYLIB) "PREBOUND_DYLIB")
         ((= cmd LC_ROUTINES) "ROUTINES")
