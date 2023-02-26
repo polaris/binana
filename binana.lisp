@@ -229,6 +229,32 @@
 	(offset (read-32-bit-word input 8)))
     (make-load-dylinker-command :name (read-string input offset (- cmdsize offset)))))
 
+(defstruct uuid-command
+  (cmd "UUID" :type string)
+  (uuid "" :type string))
+
+(defun read-uuid (input start)
+  (format nil "~2,'0X~2,'0X~2,'0X~2,'0X-~2,'0X~2,'0X-~2,'0X~2,'0X-~2,'0X~2,'0X-~2,'0X~2,'0X~2,'0X~2,'0X~2,'0X~2,'0X"
+	  (aref input start)
+	  (aref input (+ start 1))
+	  (aref input (+ start 2))
+	  (aref input (+ start 3))
+	  (aref input (+ start 4))
+	  (aref input (+ start 5))
+	  (aref input (+ start 6))
+	  (aref input (+ start 7))
+	  (aref input (+ start 8))
+	  (aref input (+ start 9))
+	  (aref input (+ start 10))
+	  (aref input (+ start 11))
+	  (aref input (+ start 12))
+	  (aref input (+ start 13))
+	  (aref input (+ start 14))
+	  (aref input (+ start 15))))
+
+(defun read-uuid-command (input)
+  (make-uuid-command :uuid (read-uuid input 8)))
+
 (defstruct dysymtab-command
   (cmd "DYSYMTAB" :type string)
   (ilocalsym 0 :type integer)
@@ -297,7 +323,7 @@
         ((= cmd LC_LOAD_WEAK_DYLIB) "LOAD_WEAK_DYLIB")
         ((= cmd LC_SEGMENT_64) (read-segment-command-64 input))
         ((= cmd LC_ROUTINES_64) "ROUTINES_64")
-        ((= cmd LC_UUID) "UUID")
+        ((= cmd LC_UUID) (read-uuid-command input))
         ((= cmd LC_RPATH) "RPATH")
         ((= cmd LC_CODE_SIGNATURE) "CODE_SIGNATURE")
         ((= cmd LC_SEGMENT_SPLIT_INFO) "SEGMENT_SPLIT_INFO")
