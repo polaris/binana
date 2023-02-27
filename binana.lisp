@@ -71,6 +71,7 @@
 (defconstant LC_DATA_IN_CODE          #x29) ; table of non-instructions in __text
 (defconstant LC_SOURCE_VERSION        #x2A) ; source version used to build binary
 (defconstant LC_DYLIB_CODE_SIGN_DRS   #x2B) ; Code signing DRs copied from linked dylibs
+(defconstant LC_BUILD_VERSION         #x32) ; build version
 
 (defun map-to-filetype (value)
   (cond ((= value MH_OBJECT) "OBJECT")
@@ -271,6 +272,30 @@
 (defun read-source-version-command (input)
   (make-source-version-command :version (read-source-version input 8)))
 
+(defstruct build-version-command
+  (cmd "BUILD_VERSION" :type string)
+  (platform 0 :type integer)
+  (minos 0 :type string)
+  (sdk 0 :type string)
+  (ntools 0 :type integer)
+  (tool 0 :type integer)
+  (version 0 :type string))
+
+(defun read-build-version (input start)
+  (let ((d (read-32-bit-word input start)))
+    (format nil "~d.~d.~d"
+	    (ash (logand d #xFFFF0000) -16)
+	    (ash (logand d #x0000FF00)  -8)
+	    (logand d #x000000FF))))
+
+(defun read-build-version-command (input)
+  (make-build-version-command :platform (read-32-bit-word input 8)
+			      :minos (read-build-version input 12)
+			      :sdk (read-build-version input 16)
+			      :ntools (read-32-bit-word input 20)
+			      :tool (read-32-bit-word input 24)
+			      :version (read-build-version input 28)))
+
 (defstruct dysymtab-command
   (cmd "DYSYMTAB" :type string)
   (ilocalsym 0 :type integer)
@@ -357,6 +382,7 @@
         ((= cmd LC_DATA_IN_CODE) "DATA_IN_CODE")
         ((= cmd LC_SOURCE_VERSION) (read-source-version-command input))
         ((= cmd LC_DYLIB_CODE_SIGN_DRS) "DYLIB_CODE_SIGN_DRS")
+	((= cmd LC_BUILD_VERSION) (read-build-version-command input))
         (t "Unknown")))
 
 (defun read-32-bit-word (input start)
