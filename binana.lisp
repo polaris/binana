@@ -255,6 +255,22 @@
 (defun read-uuid-command (input)
   (make-uuid-command :uuid (read-uuid input 8)))
 
+(defstruct source-version-command
+  (cmd "SOURCE_VERSION" :type string)
+  (version "" :type string))
+
+(defun read-source-version (input start)
+  (let ((d (read-64-bit-word input start)))
+    (format nil "~d.~d.~d.~d.~d"
+	    (ash (logand d #xFFFFFF0000000000) -40)
+	    (ash (logand d #x000000FFC0000000) -30)
+	    (ash (logand d #x000000003FF00000) -20)
+	    (ash (logand d #x00000000000FFC00) -10)
+	    (logand d #x00000000000003FF))))
+
+(defun read-source-version-command (input)
+  (make-source-version-command :version (read-source-version input 8)))
+
 (defstruct dysymtab-command
   (cmd "DYSYMTAB" :type string)
   (ilocalsym 0 :type integer)
@@ -339,12 +355,22 @@
         ((= cmd LC_DYLD_ENVIRONMENT) "DYLD_ENVIRONMENT")
         ((= cmd LC_MAIN) "MAIN")
         ((= cmd LC_DATA_IN_CODE) "DATA_IN_CODE")
-        ((= cmd LC_SOURCE_VERSION) "SOURCE_VERSION")
+        ((= cmd LC_SOURCE_VERSION) (read-source-version-command input))
         ((= cmd LC_DYLIB_CODE_SIGN_DRS) "DYLIB_CODE_SIGN_DRS")
         (t "Unknown")))
 
 (defun read-32-bit-word (input start)
   (logior (ash (aref input (+ start 3)) 24)
+          (ash (aref input (+ start 2)) 16)
+          (ash (aref input (+ start 1)) 8)
+          (aref input start)))
+
+(defun read-64-bit-word (input start)
+  (logior (ash (aref input (+ start 7)) 56)
+	  (ash (aref input (+ start 6)) 48)
+	  (ash (aref input (+ start 5)) 40)
+	  (ash (aref input (+ start 4)) 32)
+	  (ash (aref input (+ start 3)) 24)
           (ash (aref input (+ start 2)) 16)
           (ash (aref input (+ start 1)) 8)
           (aref input start)))
