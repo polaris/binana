@@ -337,6 +337,15 @@
 			 :locreloff (read-32-bit-word input 72)
 			 :nlocrel (read-32-bit-word input 76)))
 
+(defstruct entry-point-command
+  (cmd "MAIN" :type string)
+  (entryoff 0 :type integer)
+  (stacksize 0 :type integer))
+
+(defun read-entry-point-command (input)
+  (make-entry-point-command :entryoff (read-64-bit-word input 8)
+			    :stacksize (read-64-bit-word input 16)))
+
 (defun map-to-load-command (cmd input)
   (cond ((= cmd LC_SEGMENT) (read-segment-command input))
         ((= cmd LC_SYMTAB) (read-symtab-command input))
@@ -378,7 +387,7 @@
         ((= cmd LC_VERSION_MIN_IPHONEOS) "VERSION_MIN_IPHONEOS")
         ((= cmd LC_FUNCTION_STARTS) "FUNCTION_STARTS")
         ((= cmd LC_DYLD_ENVIRONMENT) "DYLD_ENVIRONMENT")
-        ((= cmd LC_MAIN) "MAIN")
+        ((= cmd LC_MAIN) (read-entry-point-command input))
         ((= cmd LC_DATA_IN_CODE) "DATA_IN_CODE")
         ((= cmd LC_SOURCE_VERSION) (read-source-version-command input))
         ((= cmd LC_DYLIB_CODE_SIGN_DRS) "DYLIB_CODE_SIGN_DRS")
