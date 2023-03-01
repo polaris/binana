@@ -346,6 +346,15 @@
   (make-entry-point-command :entryoff (read-64-bit-word input 8)
 			    :stacksize (read-64-bit-word input 16)))
 
+(defstruct function-start-command
+  (cmd "FUNCTION_START" :type string)
+  (dataoff 0 :type integer)
+  (datasize 0 :type integer))
+
+(defun read-function-start-command (input)
+  (make-function-start-command :dataoff (read-32-bit-word input 8)
+			       :datasize (read-32-bit-word input 12)))
+
 (defun map-to-load-command (cmd input)
   (cond ((= cmd LC_SEGMENT) (read-segment-command input))
         ((= cmd LC_SYMTAB) (read-symtab-command input))
@@ -385,7 +394,7 @@
         ((= cmd LC_LOAD_UPWARD_DYLIB) "LOAD_UPWARD_DYLIB")
         ((= cmd LC_VERSION_MIN_MACOSX) "VERSION_MIN_MACOSX")
         ((= cmd LC_VERSION_MIN_IPHONEOS) "VERSION_MIN_IPHONEOS")
-        ((= cmd LC_FUNCTION_STARTS) "FUNCTION_STARTS")
+        ((= cmd LC_FUNCTION_STARTS) (read-function-start-command input))
         ((= cmd LC_DYLD_ENVIRONMENT) "DYLD_ENVIRONMENT")
         ((= cmd LC_MAIN) (read-entry-point-command input))
         ((= cmd LC_DATA_IN_CODE) "DATA_IN_CODE")
