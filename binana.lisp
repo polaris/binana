@@ -355,6 +355,15 @@
   (make-function-start-command :dataoff (read-32-bit-word input 8)
 			       :datasize (read-32-bit-word input 12)))
 
+(defstruct data-in-code-command
+  (cmd "DATA_IN_CODE" :type string)
+  (dataoff 0 :type integer)
+  (datasize 0 :type integer))
+
+(defun read-data-in-code-command (input)
+  (make-data-in-code-command :dataoff (read-32-bit-word input 8)
+			     :datasize (read-32-bit-word input 12)))
+
 (defun map-to-load-command (cmd input)
   (cond ((= cmd LC_SEGMENT) (read-segment-command input))
         ((= cmd LC_SYMTAB) (read-symtab-command input))
@@ -397,7 +406,7 @@
         ((= cmd LC_FUNCTION_STARTS) (read-function-start-command input))
         ((= cmd LC_DYLD_ENVIRONMENT) "DYLD_ENVIRONMENT")
         ((= cmd LC_MAIN) (read-entry-point-command input))
-        ((= cmd LC_DATA_IN_CODE) "DATA_IN_CODE")
+        ((= cmd LC_DATA_IN_CODE) (read-data-in-code-command input))
         ((= cmd LC_SOURCE_VERSION) (read-source-version-command input))
         ((= cmd LC_DYLIB_CODE_SIGN_DRS) "DYLIB_CODE_SIGN_DRS")
 	((= cmd LC_BUILD_VERSION) (read-build-version-command input))
