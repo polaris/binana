@@ -90,6 +90,29 @@
 (defun read-string (input start size)
   (concatenate 'string (map 'cons 'code-char (subseq input start (+ start size)))))
 
+(defstruct segment-command
+  (cmd "SEGMENT" :type string)
+  (segname "" :type string)
+  (vmaddr 0 :type integer)
+  (vmsize 0 :type integer)
+  (fileoff 0 :type integer)
+  (filesize 0 :type integer)
+  (maxprot 0 :type integer)
+  (initprot 0 :type integer)
+  (nsects 0 :type integer)
+  (flags 0 :type integer))
+
+(defun read-segment-command (input)
+  (make-segment-command :segname (read-string input 8 16)
+			:vmaddr (read-32-bit-word input 16)
+			:vmsize (read-32-bit-word input 20)
+			:fileoff (read-32-bit-word input 24)
+			:filesize (read-32-bit-word input 28)
+			:maxprot (read-32-bit-word input 32)
+			:initprot (read-32-bit-word input 36)
+			:nsects (read-32-bit-word input 40)
+			:flags (read-32-bit-word input 44)))
+
 (defstruct symtab-command
   (cmd "SYMTAB" :type string)
   (symoff 0 :type integer)
@@ -102,6 +125,77 @@
 		       :nsyms (read-32-bit-word input 12)
 		       :stroff (read-32-bit-word input 16)
 		       :strsize (read-32-bit-word input 20)))
+
+(defstruct dysymtab-command
+  (cmd "DYSYMTAB" :type string)
+  (ilocalsym 0 :type integer)
+  (nlocalsym 0 :type integer)
+  (iextdefsym 0 :type integer)
+  (nextdefsym 0 :type integer)
+  (iundefsym 0 :type integer)
+  (nundefsym 0 :type integer)
+  (tocoff 0 :type integer)
+  (ntoc 0 :type integer)
+  (modtaboff 0 :type integer)
+  (nmodtab 0 :type integer)
+  (extrefsymoff 0 :type integer)
+  (nextrefsyms 0 :type integer)
+  (indirectsymoff 0 :type integer)
+  (nindirectsyms 0 :type integer)
+  (extreloff 0 :type integer)
+  (nextrel 0 :type integer)
+  (locreloff 0 :type integer)
+  (nlocrel 0 :type integer))
+
+(defun read-dysymtab-command (input)
+  (make-dysymtab-command :ilocalsym (read-32-bit-word input 8)
+			 :nlocalsym (read-32-bit-word input 12)
+			 :iextdefsym (read-32-bit-word input 16)
+			 :nextdefsym (read-32-bit-word input 20)
+			 :iundefsym (read-32-bit-word input 24)
+			 :nundefsym (read-32-bit-word input 28)
+			 :tocoff (read-32-bit-word input 32)
+			 :ntoc (read-32-bit-word input 36)
+			 :modtaboff (read-32-bit-word input 40)
+			 :nmodtab (read-32-bit-word input 44)
+			 :extrefsymoff (read-32-bit-word input 48)
+			 :nextrefsyms (read-32-bit-word input 52)
+			 :indirectsymoff (read-32-bit-word input 56)
+			 :nindirectsyms (read-32-bit-word input 60)
+			 :extreloff (read-32-bit-word input 64)
+			 :nextrel (read-32-bit-word input 68)
+			 :locreloff (read-32-bit-word input 72)
+			 :nlocrel (read-32-bit-word input 76)))
+
+(defstruct dylib-info
+  (name "" :type string)
+  (timestamp 0 :type integer)
+  (current-version "" :type string)
+  (compatibility-version "" :type string))
+
+(defstruct dylib-command
+  (cmd "LOAD_DYLIB" :type string)
+  dylib)
+
+(defun read-dylib-command (input)
+  (let ((cmdsize (read-32-bit-word input 4))
+	(offset (read-32-bit-word input 8))
+	(timestamp (read-32-bit-word input 12))
+	(current-version (read-version input 16))
+	(compatibility-version (read-version input 20)))
+    (make-dylib-command :dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
+						:timestamp timestamp
+						:current-version current-version
+						:compatibility-version compatibility-version))))
+
+(defstruct load-dylinker-command
+  (cmd "LOAD_DYLINKER" :type string)
+  (name "" :type string))
+
+(defun read-load-dylinker-command (input)
+  (let ((cmdsize (read-32-bit-word input 4))
+	(offset (read-32-bit-word input 8)))
+    (make-load-dylinker-command :name (read-string input offset (- cmdsize offset)))))
 
 (defstruct dyld-info-only-command
   (cmd "DYLD_INFO_ONLY" :type string)
@@ -154,29 +248,6 @@
 			  :export-off (read-32-bit-word input 40)
 			  :export-size (read-32-bit-word input 44)))
 
-(defstruct segment-command
-  (cmd "SEGMENT" :type string)
-  (segname "" :type string)
-  (vmaddr 0 :type integer)
-  (vmsize 0 :type integer)
-  (fileoff 0 :type integer)
-  (filesize 0 :type integer)
-  (maxprot 0 :type integer)
-  (initprot 0 :type integer)
-  (nsects 0 :type integer)
-  (flags 0 :type integer))
-
-(defun read-segment-command (input)
-  (make-segment-command :segname (read-string input 8 16)
-			:vmaddr (read-32-bit-word input 16)
-			:vmsize (read-32-bit-word input 20)
-			:fileoff (read-32-bit-word input 24)
-			:filesize (read-32-bit-word input 28)
-			:maxprot (read-32-bit-word input 32)
-			:initprot (read-32-bit-word input 36)
-			:nsects (read-32-bit-word input 40)
-			:flags (read-32-bit-word input 44)))
-
 (defstruct segment-command-64
   (cmd "SEGMENT_64" :type string)
   (segname "" :type string)
@@ -199,36 +270,6 @@
 			   :initprot (read-32-bit-word input 36)
 			   :nsects (read-32-bit-word input 40)
 			   :flags (read-32-bit-word input 44)))
-
-(defstruct dylib-info
-  (name "" :type string)
-  (timestamp 0 :type integer)
-  (current-version "" :type string)
-  (compatibility-version "" :type string))
-
-(defstruct dylib-command
-  (cmd "LOAD_DYLIB" :type string)
-  dylib)
-
-(defun read-dylib-command (input)
-  (let ((cmdsize (read-32-bit-word input 4))
-	(offset (read-32-bit-word input 8))
-	(timestamp (read-32-bit-word input 12))
-	(current-version (read-version input 16))
-	(compatibility-version (read-version input 20)))
-    (make-dylib-command :dylib (make-dylib-info :name (read-string input offset (- cmdsize offset))
-						:timestamp timestamp
-						:current-version current-version
-						:compatibility-version compatibility-version))))
-
-(defstruct load-dylinker-command
-  (cmd "LOAD_DYLINKER" :type string)
-  (name "" :type string))
-
-(defun read-load-dylinker-command (input)
-  (let ((cmdsize (read-32-bit-word input 4))
-	(offset (read-32-bit-word input 8)))
-    (make-load-dylinker-command :name (read-string input offset (- cmdsize offset)))))
 
 (defstruct uuid-command
   (cmd "UUID" :type string)
@@ -295,47 +336,6 @@
 			      :ntools (read-32-bit-word input 20)
 			      :tool (read-32-bit-word input 24)
 			      :version (read-build-version input 28)))
-
-(defstruct dysymtab-command
-  (cmd "DYSYMTAB" :type string)
-  (ilocalsym 0 :type integer)
-  (nlocalsym 0 :type integer)
-  (iextdefsym 0 :type integer)
-  (nextdefsym 0 :type integer)
-  (iundefsym 0 :type integer)
-  (nundefsym 0 :type integer)
-  (tocoff 0 :type integer)
-  (ntoc 0 :type integer)
-  (modtaboff 0 :type integer)
-  (nmodtab 0 :type integer)
-  (extrefsymoff 0 :type integer)
-  (nextrefsyms 0 :type integer)
-  (indirectsymoff 0 :type integer)
-  (nindirectsyms 0 :type integer)
-  (extreloff 0 :type integer)
-  (nextrel 0 :type integer)
-  (locreloff 0 :type integer)
-  (nlocrel 0 :type integer))
-
-(defun read-dysymtab-command (input)
-  (make-dysymtab-command :ilocalsym (read-32-bit-word input 8)
-			 :nlocalsym (read-32-bit-word input 12)
-			 :iextdefsym (read-32-bit-word input 16)
-			 :nextdefsym (read-32-bit-word input 20)
-			 :iundefsym (read-32-bit-word input 24)
-			 :nundefsym (read-32-bit-word input 28)
-			 :tocoff (read-32-bit-word input 32)
-			 :ntoc (read-32-bit-word input 36)
-			 :modtaboff (read-32-bit-word input 40)
-			 :nmodtab (read-32-bit-word input 44)
-			 :extrefsymoff (read-32-bit-word input 48)
-			 :nextrefsyms (read-32-bit-word input 52)
-			 :indirectsymoff (read-32-bit-word input 56)
-			 :nindirectsyms (read-32-bit-word input 60)
-			 :extreloff (read-32-bit-word input 64)
-			 :nextrel (read-32-bit-word input 68)
-			 :locreloff (read-32-bit-word input 72)
-			 :nlocrel (read-32-bit-word input 76)))
 
 (defstruct entry-point-command
   (cmd "MAIN" :type string)
