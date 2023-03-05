@@ -7,7 +7,8 @@
   :version "0.0.1"
   :serial t
   :components ((:file "package")
-               (:file "binana"))
+               (:file "binana")
+	       (:file "utils"))
   :in-order-to ((test-op (test-op "binana/tests"))))
 
 (asdf:defsystem #:binana/tests
