@@ -88,7 +88,7 @@
 	(t "Unknown")))
 
 (defstruct segment-command
-  (cmd "SEGMENT" :type string)
+  (cmd LC_SEGMENT :type integer)
   (segname "" :type string)
   (vmaddr 0 :type integer)
   (vmsize 0 :type integer)
@@ -111,7 +111,7 @@
 			:flags (read-32-bit-word input 44)))
 
 (defstruct symtab-command
-  (cmd "SYMTAB" :type string)
+  (cmd LC_SYMTAB :type integer)
   (symoff 0 :type integer)
   (nsyms 0 :type integer)
   (stroff 0 :type integer)
@@ -124,7 +124,7 @@
 		       :strsize (read-32-bit-word input 20)))
 
 (defstruct dysymtab-command
-  (cmd "DYSYMTAB" :type string)
+  (cmd LC_DYSYMTAB :type integer)
   (ilocalsym 0 :type integer)
   (nlocalsym 0 :type integer)
   (iextdefsym 0 :type integer)
@@ -171,7 +171,7 @@
   (compatibility-version "" :type string))
 
 (defstruct dylib-command
-  (cmd "LOAD_DYLIB" :type string)
+  (cmd LC_LOAD_DYLIB :type integer)
   dylib)
 
 (defun read-dylib-command (input)
@@ -186,7 +186,7 @@
 						:compatibility-version compatibility-version))))
 
 (defstruct load-dylinker-command
-  (cmd "LOAD_DYLINKER" :type string)
+  (cmd LC_LOAD_DYLINKER :type integer)
   (name "" :type string))
 
 (defun read-load-dylinker-command (input)
@@ -195,7 +195,7 @@
     (make-load-dylinker-command :name (read-string input offset (- cmdsize offset)))))
 
 (defstruct dyld-info-only-command
-  (cmd "DYLD_INFO_ONLY" :type string)
+  (cmd LC_DYLD_INFO_ONLY :type integer)
   (rebase-off 0 :type integer)
   (rebase-size 0 :type integer)
   (bind-off 0 :type integer)
@@ -221,7 +221,7 @@
 
 
 (defstruct dyld-info-command
-  (cmd "DYLD_INFO" :type string)
+  (cmd LC_DYLD_INFO :type integer)
   (rebase-off 0 :type integer)
   (rebase-size 0 :type integer)
   (bind-off 0 :type integer)
@@ -246,7 +246,7 @@
 			  :export-size (read-32-bit-word input 44)))
 
 (defstruct segment-command-64
-  (cmd "SEGMENT_64" :type string)
+  (cmd LC_SEGMENT_64 :type integer)
   (segname "" :type string)
   (vmaddr 0 :type integer)
   (vmsize 0 :type integer)
@@ -269,7 +269,7 @@
 			   :flags (read-32-bit-word input 44)))
 
 (defstruct uuid-command
-  (cmd "UUID" :type string)
+  (cmd LC_UUID :type integer)
   (uuid "" :type string))
 
 (defun read-uuid (input start)
@@ -295,7 +295,7 @@
   (make-uuid-command :uuid (read-uuid input 8)))
 
 (defstruct source-version-command
-  (cmd "SOURCE_VERSION" :type string)
+  (cmd LC_SOURCE_VERSION :type integer)
   (version "" :type string))
 
 (defun read-source-version (input start)
@@ -311,7 +311,7 @@
   (make-source-version-command :version (read-source-version input 8)))
 
 (defstruct build-version-command
-  (cmd "BUILD_VERSION" :type string)
+  (cmd LC_BUILD_VERSION :type integer)
   (platform 0 :type integer)
   (minos 0 :type string)
   (sdk 0 :type string)
@@ -335,7 +335,7 @@
 			      :version (read-build-version input 28)))
 
 (defstruct entry-point-command
-  (cmd "MAIN" :type string)
+  (cmd LC_MAIN :type integer)
   (entryoff 0 :type integer)
   (stacksize 0 :type integer))
 
@@ -344,7 +344,7 @@
 			    :stacksize (read-64-bit-word input 16)))
 
 (defstruct function-start-command
-  (cmd "FUNCTION_START" :type string)
+  (cmd LC_FUNCTION_STARTS :type integer)
   (dataoff 0 :type integer)
   (datasize 0 :type integer))
 
@@ -353,7 +353,7 @@
 			       :datasize (read-32-bit-word input 12)))
 
 (defstruct data-in-code-command
-  (cmd "DATA_IN_CODE" :type string)
+  (cmd LC_DATA_IN_CODE :type integer)
   (dataoff 0 :type integer)
   (datasize 0 :type integer))
 
