@@ -14,13 +14,6 @@
 (defconstant MH_DSYM        #xa) ; companion file with only debug sections
 (defconstant MH_KEXT_BUNDLE #xb) ; x86_64 kexts
 
-; After MacOS X 10.1 when a new load command is added that is required to be
-; understood by the dynamic linker for the image to execute properly the
-; LC_REQ_DYLD bit will be or'ed into the load command constant.  If the dynamic
-; linker sees such a load command it it does not understand will issue a
-; "unknown load command required for execution" error and refuse to use the
-; image.  Other load commands without this bit that are not understood will
-; simply be ignored.
 (defconstant LC_REQ_DYLD #x80000000)
 
 (defconstant LC_SEGMENT	          #x1) ; segment of this file to be mapped
@@ -47,8 +40,6 @@
 (defconstant LC_TWOLEVEL_HINTS    #x16) ; two-level namespace lookup hints
 (defconstant LC_PREBIND_CKSUM     #x17) ; prebind checksum
 
-; load a dynamically linked shared library that is allowed to be missing
-; (all symbols are weak imported).
 (defconstant LC_LOAD_WEAK_DYLIB       (logior #x18 LC_REQ_DYLD))
 
 (defconstant LC_SEGMENT_64            #x19) ; 64-bit segment of this file to be mapped
