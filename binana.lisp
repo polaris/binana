@@ -2,67 +2,67 @@
 
 (in-package #:binana)
 
-(defconstant MH_OBJECT      #x1) ; relocatable object file
-(defconstant MH_EXECUTE     #x2) ; demand paged executable file
-(defconstant MH_FVMLIB      #x3) ; fixed VM shared library file
-(defconstant MH_CORE        #x4) ; core file
-(defconstant MH_PRELOAD     #x5) ; preloaded executable file
-(defconstant MH_DYLIB       #x6) ; dynamically bound shared library
-(defconstant MH_DYLINKER    #x7) ; dynamic link editor
-(defconstant MH_BUNDLE	    #x8) ; dynamically bound bundle file
-(defconstant MH_DYLIB_STUB  #x9) ; shared library stub for static linking only, no section contents
-(defconstant MH_DSYM        #xa) ; companion file with only debug sections
-(defconstant MH_KEXT_BUNDLE #xb) ; x86_64 kexts
+(defconstant MH_OBJECT      #x1)
+(defconstant MH_EXECUTE     #x2)
+(defconstant MH_FVMLIB      #x3)
+(defconstant MH_CORE        #x4)
+(defconstant MH_PRELOAD     #x5)
+(defconstant MH_DYLIB       #x6)
+(defconstant MH_DYLINKER    #x7)
+(defconstant MH_BUNDLE	    #x8)
+(defconstant MH_DYLIB_STUB  #x9)
+(defconstant MH_DSYM        #xa)
+(defconstant MH_KEXT_BUNDLE #xb)
 
 (defconstant LC_REQ_DYLD #x80000000)
 
-(defconstant LC_SEGMENT	          #x1) ; segment of this file to be mapped
-(defconstant LC_SYMTAB	          #x2) ; link-edit stab symbol table info
-(defconstant LC_SYMSEG	          #x3) ; link-edit gdb symbol table info (obsolete)
-(defconstant LC_THREAD	          #x4) ; thread
-(defconstant LC_UNIXTHREAD        #x5) ; unix thread (includes a stack)
-(defconstant LC_LOADFVMLIB        #x6) ; load a specified fixed VM shared library
-(defconstant LC_IDFVMLIB          #x7) ; fixed VM shared library identification
-(defconstant LC_IDENT             #x8) ; object identification info (obsolete)
-(defconstant LC_FVMFILE	          #x9) ; fixed VM file inclusion (internal use)
-(defconstant LC_PREPAGE           #xa) ; prepage command (internal use)
-(defconstant LC_DYSYMTAB          #xb) ; dynamic link-edit symbol table info
-(defconstant LC_LOAD_DYLIB        #xc) ; load a dynamically linked shared library
-(defconstant LC_ID_DYLIB          #xd) ; dynamically linked shared lib ident
-(defconstant LC_LOAD_DYLINKER     #xe) ; load a dynamic linker
-(defconstant LC_ID_DYLINKER       #xf) ; dynamic linker identification
-(defconstant LC_PREBOUND_DYLIB    #x10) ; modules prebound for a dynamically linked shared library
-(defconstant LC_ROUTINES          #x11) ; image routines
-(defconstant LC_SUB_FRAMEWORK     #x12) ; sub framework
-(defconstant LC_SUB_UMBRELLA      #x13) ; sub umbrella
-(defconstant LC_SUB_CLIENT        #x14) ; sub client
-(defconstant LC_SUB_LIBRARY       #x15) ; sub library
-(defconstant LC_TWOLEVEL_HINTS    #x16) ; two-level namespace lookup hints
-(defconstant LC_PREBIND_CKSUM     #x17) ; prebind checksum
+(defconstant LC_SEGMENT	          #x1)
+(defconstant LC_SYMTAB	          #x2)
+(defconstant LC_SYMSEG	          #x3)
+(defconstant LC_THREAD	          #x4)
+(defconstant LC_UNIXTHREAD        #x5)
+(defconstant LC_LOADFVMLIB        #x6)
+(defconstant LC_IDFVMLIB          #x7)
+(defconstant LC_IDENT             #x8)
+(defconstant LC_FVMFILE	          #x9)
+(defconstant LC_PREPAGE           #xa)
+(defconstant LC_DYSYMTAB          #xb)
+(defconstant LC_LOAD_DYLIB        #xc)
+(defconstant LC_ID_DYLIB          #xd)
+(defconstant LC_LOAD_DYLINKER     #xe)
+(defconstant LC_ID_DYLINKER       #xf)
+(defconstant LC_PREBOUND_DYLIB    #x10)
+(defconstant LC_ROUTINES          #x11)
+(defconstant LC_SUB_FRAMEWORK     #x12)
+(defconstant LC_SUB_UMBRELLA      #x13)
+(defconstant LC_SUB_CLIENT        #x14)
+(defconstant LC_SUB_LIBRARY       #x15)
+(defconstant LC_TWOLEVEL_HINTS    #x16)
+(defconstant LC_PREBIND_CKSUM     #x17)
 
 (defconstant LC_LOAD_WEAK_DYLIB       (logior #x18 LC_REQ_DYLD))
 
-(defconstant LC_SEGMENT_64            #x19) ; 64-bit segment of this file to be mapped
-(defconstant LC_ROUTINES_64           #x1a) ; 64-bit image routines
-(defconstant LC_UUID                  #x1b) ; the uuid
-(defconstant LC_RPATH                 (logior #x1c LC_REQ_DYLD)) ; runpath additions
-(defconstant LC_CODE_SIGNATURE        #x1d) ; local of code signature
-(defconstant LC_SEGMENT_SPLIT_INFO    #x1e) ; local of info to split segments
-(defconstant LC_REEXPORT_DYLIB        (logior #x1f LC_REQ_DYLD)) ; load and re-export dylib
-(defconstant LC_LAZY_LOAD_DYLIB       #x20) ; delay load of dylib until first use
-(defconstant LC_ENCRYPTION_INFO       #x21) ; encrypted segment information
-(defconstant LC_DYLD_INFO             #x22) ; compressed dyld information
-(defconstant LC_DYLD_INFO_ONLY        (logior #x22 LC_REQ_DYLD)) ; compressed dyld information only
-(defconstant LC_LOAD_UPWARD_DYLIB     (logior #x23 LC_REQ_DYLD)) ; load upward dylib
-(defconstant LC_VERSION_MIN_MACOSX    #x24  ) ; build for MacOSX min OS version
-(defconstant LC_VERSION_MIN_IPHONEOS  #x25) ; build for iPhoneOS min OS version
-(defconstant LC_FUNCTION_STARTS       #x26) ; compressed table of function start addresses
-(defconstant LC_DYLD_ENVIRONMENT      #x27) ; string for dyld to treat like environment variable
-(defconstant LC_MAIN                  (logior #x28 LC_REQ_DYLD)) ; replacement for LC_UNIXTHREAD
-(defconstant LC_DATA_IN_CODE          #x29) ; table of non-instructions in __text
-(defconstant LC_SOURCE_VERSION        #x2A) ; source version used to build binary
-(defconstant LC_DYLIB_CODE_SIGN_DRS   #x2B) ; Code signing DRs copied from linked dylibs
-(defconstant LC_BUILD_VERSION         #x32) ; build version
+(defconstant LC_SEGMENT_64            #x19)
+(defconstant LC_ROUTINES_64           #x1a)
+(defconstant LC_UUID                  #x1b)
+(defconstant LC_RPATH                 (logior #x1c LC_REQ_DYLD))
+(defconstant LC_CODE_SIGNATURE        #x1d)
+(defconstant LC_SEGMENT_SPLIT_INFO    #x1e)
+(defconstant LC_REEXPORT_DYLIB        (logior #x1f LC_REQ_DYLD))
+(defconstant LC_LAZY_LOAD_DYLIB       #x20)
+(defconstant LC_ENCRYPTION_INFO       #x21)
+(defconstant LC_DYLD_INFO             #x22)
+(defconstant LC_DYLD_INFO_ONLY        (logior #x22 LC_REQ_DYLD))
+(defconstant LC_LOAD_UPWARD_DYLIB     (logior #x23 LC_REQ_DYLD))
+(defconstant LC_VERSION_MIN_MACOSX    #x24)
+(defconstant LC_VERSION_MIN_IPHONEOS  #x25)
+(defconstant LC_FUNCTION_STARTS       #x26)
+(defconstant LC_DYLD_ENVIRONMENT      #x27)
+(defconstant LC_MAIN                  (logior #x28 LC_REQ_DYLD))
+(defconstant LC_DATA_IN_CODE          #x29)
+(defconstant LC_SOURCE_VERSION        #x2A)
+(defconstant LC_DYLIB_CODE_SIGN_DRS   #x2B)
+(defconstant LC_BUILD_VERSION         #x32)
 
 (defun map-to-filetype (value)
   (cond ((= value MH_OBJECT) "OBJECT")
