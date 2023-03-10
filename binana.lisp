@@ -92,9 +92,9 @@
 
 (defun read-segment-command (input)
   (make-segment-command :segname (read-string input 8 16)
-			:vmaddr (read-32-bit-word input 16)
-			:vmsize (read-32-bit-word input 20)
-			:fileoff (read-32-bit-word input 24)
+                        :vmaddr (read-32-bit-word input 16)
+                        :vmsize (read-32-bit-word input 20)
+  			:fileoff (read-32-bit-word input 24)
 			:filesize (read-32-bit-word input 28)
 			:maxprot (read-32-bit-word input 32)
 			:initprot (read-32-bit-word input 36)
@@ -209,7 +209,6 @@
 			       :lazy-bind-size (read-32-bit-word input 36)
 			       :export-off (read-32-bit-word input 40)
 			       :export-size (read-32-bit-word input 44)))
-
 
 (defstruct dyld-info-command
   (cmd LC_DYLD_INFO :type integer)
